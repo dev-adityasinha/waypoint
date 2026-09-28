@@ -37,4 +37,4 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Author
 
-Built by [@iammdzaidalam](https://github.com/iammdzaidalam). Issues and PRs welcome.
+Built by [@dev-adityasinha](https://github.com/dev-adityasinha). Issues and PRs welcome.
