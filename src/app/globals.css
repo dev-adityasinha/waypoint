@@ -1,0 +1,2698 @@
+@import 'tailwindcss';
+
+/* ============================================================
+   Waypoint design system
+
+   Everything is square: no radii, no shadows, no gaps between
+   cards. Structure comes from 1px hairlines instead - a
+   continuous bordered .frame down the page, .hatch bands
+   between sections, and .cell-grid cards divided by rules.
+   Warm ink on white/#f9f9f8, one blue accent, Matter
+   for type at a large scale with normal letter-spacing.
+   ============================================================ */
+
+:root {
+  /* type scale - nudge the whole site in one edit */
+  --type-scale: 1;
+
+  /* surfaces (warm) */
+  --bg: #ffffff;
+  --bg-2: #f9f9f8;
+  --bg-3: #f2f2f0;
+  --panel: #ffffff;
+  --panel-2: #fafafa;
+
+  /* ink (warm) */
+  --text: #2a2524;
+  --text-dim: #57534e;
+  --text-faint: #78716c;
+
+  /* lines */
+  --line: #e5e5e5;
+  --line-strong: #d6d3d1;
+
+  /* Soloterm blue, measured off their hero. 5.25:1 against white, so it
+     clears AA for body copy both as text on white and as a band under
+     white text. --accent-strong is their button-border blue. */
+  --accent: #155dfc;
+  --accent-strong: #193cb8;
+  --accent-soft: rgba(21, 93, 252, 0.10);
+  --accent-rgb: 21, 93, 252;
+
+  /* full-bleed hero band */
+  --hero-band: #155dfc;
+  --hero-band-2: #1350e0;
+  --hero-ink: #ffffff;
+  /* 0.88 not 0.72: dimmed white needs weight to stay readable on the band */
+  --hero-ink-dim: rgba(255, 255, 255, 1);
+
+  /* data viz */
+  --seg-off: #e5e5e5;
+  --heat-empty: #ededeb;
+  --ink-rgb: 42, 37, 36;
+  --ink-bar: var(--accent);
+  --ascii-ink: #2a2524;
+
+  /* shape + depth - square, flat (Soloterm) */
+  --radius: 0;
+  --radius-lg: 0;
+  --radius-sm: 0;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --grain-opacity: 0;
+
+  /* frame geometry */
+  --frame-w: 1240px;
+  /* outer bordered column */
+  --col-w: 1144px;
+  /* inner content column */
+
+  /* legacy aliases consumed by components + tailwind theme */
+  --paper: var(--bg);
+  --paper-2: var(--panel);
+  --paper-3: var(--panel-2);
+  --ink: var(--text);
+  --ink-dim: var(--text-dim);
+  --ink-faint: var(--text-faint);
+  --line-dark: var(--line-strong);
+  --bg-panel: var(--panel);
+  --bg-panel-2: var(--heat-empty);
+  --mint: var(--accent);
+  --danger: #d23a2a;
+  --btn-bg: var(--accent);
+  --btn-text: #ffffff;
+}
+
+/* Soloterm has no dark mode, so this is derived: warm-black surfaces, still square. */
+[data-theme='dark'] {
+  --bg: #0c0a09;
+  --bg-2: #16130f;
+  --bg-3: #1c1917;
+  --panel: #12100e;
+  --panel-2: #17140f;
+
+  --text: #f5f5f4;
+  --text-dim: #a8a29e;
+  --text-faint: #78716c;
+
+  --line: #292524;
+  --line-strong: #3a3532;
+
+  /* lifted blue: #155dfc only reaches 2.4:1 on the near-black surface,
+     so the accent brightens for dark rather than reusing the brand value */
+  --accent: #6b95ff;
+  --accent-strong: #93b3ff;
+  --accent-soft: rgba(107, 149, 255, 0.16);
+  --accent-rgb: 107, 149, 255;
+
+  /* the band keeps the brand blue in both themes - it is a brand
+     surface, not a themed one */
+  --hero-band: #155dfc;
+  --hero-band-2: #1350e0;
+  --hero-ink: #ffffff;
+  --hero-ink-dim: rgba(255, 255, 255, 0.88);
+
+  --seg-off: #292524;
+  --heat-empty: #1c1917;
+  --ink-rgb: 245, 245, 244;
+  --ascii-ink: #f5f5f4;
+
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+
+  --danger: #f87963;
+  --btn-bg: var(--accent);
+  --btn-text: #ffffff;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-2: var(--bg-2);
+  --color-bg-3: var(--bg-3);
+  --color-panel: var(--panel);
+  --color-bg-panel: var(--panel);
+  --color-bg-panel-2: var(--heat-empty);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-text: var(--text);
+  --color-text-dim: var(--text-dim);
+  --color-text-faint: var(--text-faint);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-mint: var(--mint);
+  --color-danger: var(--danger);
+  --color-btn-bg: var(--btn-bg);
+  --color-btn-text: var(--btn-text);
+  --radius-waypoint: var(--radius);
+  --font-sans: var(--font-matter), system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-matter), system-ui, sans-serif;
+  --font-mono: var(--font-matter-mono), ui-monospace, 'SFMono-Regular', monospace;
+}
+
+/* ------------------------------ base ------------------------------ */
+
+* {
+  box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: calc(16px * var(--type-scale));
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.5;
+  letter-spacing: normal;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: background 0.35s ease, color 0.35s ease;
+}
+
+::-webkit-scrollbar {
+  width: 11px;
+  height: 11px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: 0;
+  border: 3px solid var(--bg);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-faint);
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: normal;
+  margin: 0;
+  color: var(--text);
+}
+
+h1 {
+  font-size: 60px;
+  line-height: 1.2;
+}
+
+h2 {
+  font-size: 48px;
+  line-height: 1.1;
+}
+
+h3 {
+  font-size: 20px;
+  line-height: 1.4;
+}
+
+h4 {
+  font-size: 17px;
+  line-height: 1.4;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.15s ease, opacity 0.15s ease;
+}
+
+code,
+kbd,
+.mono {
+  font-family: var(--font-mono);
+  font-feature-settings: 'ss01';
+}
+
+/* Images are content, not assets to lift: kill drag-to-copy and text-style
+   selection on every image site-wide. The big decorative shots get an extra
+   lock (pointer-events) where they are defined, so their right-click "save"
+   menu is gone too. */
+img {
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  user-drag: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* ------------------------- layout primitives ------------------------- */
+
+.container {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding-inline: 28px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Result pages run full-bleed so each section draws its own .frame rules
+   edge to edge, the same as the homepage. No padding: the nav is sticky
+   and so already takes up flow space, and any padding here sits outside
+   the frames and breaks the vertical rules away from the nav and footer.
+   Inner sections supply their own spacing. */
+.wrap {
+  position: relative;
+  z-index: 1;
+}
+
+/* the search bar that sits above a result, inside the frame */
+.result-search {
+  padding-block: 40px;
+}
+
+.section {
+  padding-block: 88px;
+  position: relative;
+  z-index: 1;
+}
+
+.hero,
+.section,
+[id] {
+  scroll-margin-top: 88px;
+}
+
+/* legacy eyebrow (recent searches) restyled as a mono label */
+.eyebrow {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 14px;
+}
+
+/* =========================================================
+   SOLOTERM PRIMITIVES  ·  frame · hatch · cell-grid
+   ========================================================= */
+
+/* continuous 1240px bordered column - the two vertical rules
+   read as one line down the whole page */
+.frame {
+  max-width: var(--frame-w);
+  margin-inline: auto;
+  border-inline: 1px solid var(--line);
+  position: relative;
+  z-index: 1;
+}
+
+/* inner content column, narrower than the frame */
+.col {
+  max-width: var(--col-w);
+  margin-inline: auto;
+  padding-inline: 24px;
+}
+
+/* Diagonal hairline hatch. The 10px tile is what makes this a dense
+   stripe field: the 50% stop is relative to the gradient line, so
+   without a fixed background-size the pitch scales with the element
+   and a 1240px band renders as two lonely diagonals. */
+.hatch,
+.gutter-hatch {
+  background-image: repeating-linear-gradient(315deg,
+      color-mix(in srgb, var(--line) 56%, transparent) 0 1px,
+      transparent 0 50%);
+  background-size: 10px 10px;
+}
+
+/* 32px hatch band between sections. Bordered on all four sides so the
+   top and bottom rules close the band off and meet the frame's vertical
+   rules - without them the stripes float and the seam reads as a gap. */
+.hatch {
+  max-width: var(--frame-w);
+  margin-inline: auto;
+  height: 32px;
+  border: 1px solid var(--line);
+}
+
+/* section whose inner column is narrower than the frame, the leftover
+   gutter filled with the same hatch on both sides */
+.gutter-hatch>.col {
+  border-inline: 1px solid var(--line);
+  background: var(--bg);
+}
+
+/* Result sections: the column carries no side padding of its own, so a
+   body block's border sits flush on the column rule and meets the hatched
+   gutter. The head supplies its own inset instead. */
+.result-col {
+  padding-inline: 0;
+}
+
+.sec-inset {
+  padding-inline: 24px;
+}
+
+/* Body content is inset like the head. The bordered blocks are pulled back
+   out to the column edge so their rules meet the gutter - everything else
+   (bar charts, notes) would otherwise sit flush against the column rule
+   with no breathing room. */
+.sec-body {
+  padding-inline: 24px;
+}
+
+.sec-body > .row-list,
+.sec-body > .cell-grid {
+  margin-inline: -24px;
+}
+
+/* the trailing row's margin would otherwise add to the frame's own
+   bottom padding and make this section deeper than its neighbours */
+.sec-body > .bar-row:last-child {
+  margin-bottom: 0;
+}
+
+/* In a gutter section the column already draws side rules, so the body
+   block borrows them rather than adding its own - otherwise the two sit
+   on the same pixel and read as a 2px line. Elsewhere the block keeps
+   its own border, since there is no column rule to borrow. */
+.gutter-hatch>.result-col>.sec-body>.row-list,
+.gutter-hatch>.result-col>.sec-body>.cell-grid {
+  border-inline: 0;
+}
+
+/* card system - grid cells split by hairlines, no gap/radius/shadow.
+   The outer border comes from the .frame; cells draw right + bottom rules
+   and the edge cells reset theirs so nothing doubles up. */
+.cell-grid {
+  display: grid;
+  gap: 0;
+  border-top: 1px solid var(--line);
+}
+
+.cell-grid>* {
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 28px 24px;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+  transition: background 0.16s ease;
+}
+
+.cell-grid.cols-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.cell-grid.cols-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.cell-grid.cols-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.cell-grid.cols-5 {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+/* drop the right rule on the last cell of each row */
+.cell-grid.cols-2>*:nth-child(2n),
+.cell-grid.cols-3>*:nth-child(3n),
+.cell-grid.cols-4>*:nth-child(4n),
+.cell-grid.cols-5>*:nth-child(5n) {
+  border-right: 0;
+}
+
+/* ------------------------------ nav ------------------------------ */
+
+/* Soloterm nav: solid surface, 1px bottom border, always - sits above
+   the hero rather than floating over it. */
+.nav {
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+}
+
+.nav-inner {
+  max-width: var(--frame-w);
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  position: relative;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  color: var(--text);
+}
+
+/* Wordmark: both marks are in the DOM, CSS shows the one that suits the
+   theme. Black ink on light surfaces, white ink on dark. */
+.wordmark {
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+}
+
+.wordmark img {
+  height: 100%;
+  width: auto;
+}
+
+/* The show/hide rules are scoped under .wordmark so they outrank the
+   `.wordmark img` sizing rule above on specificity - unscoped they lose
+   and both marks paint side by side. */
+.wordmark .wordmark-black {
+  display: block;
+}
+
+.wordmark .wordmark-white {
+  display: none;
+}
+
+[data-theme='dark'] .wordmark .wordmark-black {
+  display: none;
+}
+
+[data-theme='dark'] .wordmark .wordmark-white {
+  display: block;
+}
+
+/* Over the blue band the surface is dark in either theme, so the
+   white mark always wins there. */
+.hero-band .wordmark .wordmark-black,
+.cta-band .wordmark .wordmark-black {
+  display: none;
+}
+
+.hero-band .wordmark .wordmark-white,
+.cta-band .wordmark .wordmark-white {
+  display: block;
+}
+
+.nav-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.nav-link {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-dim);
+  transition: color 0.15s ease;
+}
+
+.nav-link:hover {
+  color: var(--text);
+}
+
+.icon-btn {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line-strong);
+  background: var(--panel);
+  color: var(--text-dim);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.16s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.icon-btn:hover {
+  color: var(--text);
+  border-color: var(--text-faint);
+}
+
+.icon-btn svg {
+  width: 17px;
+  height: 17px;
+  fill: currentColor;
+}
+
+.icon-btn.star svg {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.icon-btn.star .icon-star {
+  transform: translateY(150%);
+}
+
+.icon-btn.star:hover .icon-github {
+  transform: translateY(-150%);
+}
+
+.icon-btn.star:hover .icon-star {
+  transform: translateY(0);
+  color: var(--accent);
+}
+
+/* ------------------------------ buttons ------------------------------ */
+
+button,
+.btn {
+  font-family: var(--font-sans);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 24px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 0;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent-strong);
+}
+
+.btn-primary:hover {
+  background: var(--accent-strong);
+}
+
+.btn-ghost {
+  background: var(--bg);
+  color: var(--accent);
+  border-color: var(--line-strong);
+}
+
+.btn-ghost:hover {
+  border-color: var(--accent);
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+a:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* ------------------------------ inputs ------------------------------ */
+
+input[type='text'],
+input[type='password'],
+select {
+  background: var(--panel);
+  border: 1px solid var(--line-strong);
+  color: var(--text);
+  border-radius: var(--radius-sm);
+  padding: 13px 15px;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+input::placeholder {
+  color: var(--text-faint);
+}
+
+input:focus,
+select:focus {
+  border-color: var(--accent);
+  box-shadow: none;
+}
+
+/* --------------------------- hero search --------------------------- */
+
+.hero {
+  padding-top: 24px;
+}
+
+h1.title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(40px, 6.4vw, 72px);
+  line-height: 1.03;
+  letter-spacing: -0.035em;
+  margin-bottom: 22px;
+}
+
+h1.title .accent {
+  color: var(--accent);
+}
+
+.tagline {
+  color: var(--text-dim);
+  font-size: clamp(16px, 2vw, 19px);
+  line-height: 1.6;
+  max-width: 54ch;
+  margin-bottom: 34px;
+}
+
+.tagline code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  background: var(--bg-3);
+  border: 1px solid var(--line);
+  padding: 2px 7px;
+  border-radius: 0;
+  color: var(--text);
+}
+
+form.searchForm {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+  max-width: 620px;
+}
+
+.search-field {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.search-field::before {
+  content: '\276F';
+  position: absolute;
+  left: 15px;
+  color: var(--accent);
+  font-size: 13px;
+  pointer-events: none;
+}
+
+form.searchForm input[type='text'] {
+  flex: 1;
+  width: 100%;
+  padding-left: 34px;
+}
+
+button.traceBtn,
+a.traceBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent);
+  color: #fff;
+  border: 1px solid var(--accent-strong);
+  border-radius: 0;
+  padding: 0 24px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.16s ease;
+}
+
+button.traceBtn:hover,
+a.traceBtn:hover {
+  background: var(--accent-strong);
+}
+
+button.traceBtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.token-landing-section {
+  margin-top: 18px;
+}
+
+button.tokenToggle {
+  background: none;
+  border: none;
+  color: var(--text-faint);
+  padding: 4px 0;
+  font-size: 13px;
+  font-family: var(--font-mono);
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+button.tokenToggle:hover {
+  color: var(--text-dim);
+}
+
+.tokenBox {
+  margin-top: 12px;
+  max-width: 620px;
+}
+
+/* --------------------------- demo window --------------------------- */
+
+/* A macOS terminal. The one rounded thing on the site - real Terminal
+   windows have soft corners, so squaring it reads as wrong rather than
+   as style. Identical in both themes: a terminal is always dark. */
+.demo-window {
+  background: #1e1e1e;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Title bar: dots pinned left, title optically centred over the whole
+   bar (not just the space after the dots), the way macOS does it. */
+.demo-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding-inline: 13px;
+  background: #2c2c2c;
+}
+
+.demo-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.demo-dot.close {
+  background: #ff5f57;
+}
+
+.demo-dot.min {
+  background: #febc2e;
+}
+
+.demo-dot.max {
+  background: #28c840;
+}
+
+.demo-title {
+  position: absolute;
+  inset-inline: 0;
+  text-align: center;
+  pointer-events: none;
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.demo-body {
+  padding: 18px 20px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.65;
+  color: #d4d4d4;
+}
+
+.demo-line {
+  margin-bottom: 4px;
+  white-space: pre-wrap;
+}
+
+.demo-line .prompt {
+  color: #7f9fd6;
+}
+
+/* a real terminal screenshot fills the window body edge to edge, over the
+   same dark surface as the chrome so it reads as one window */
+.demo-shot {
+  background: #1e1e1e;
+  line-height: 0;
+}
+
+.demo-shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  /* decorative screenshot: no drag, no right-click save, no context menu */
+  pointer-events: none;
+}
+
+/* terminal-native ANSI-ish palette, independent of the site accent */
+.demo-body .t-dim {
+  color: #8b8b8b;
+}
+
+.demo-body .t-green {
+  color: #4ec9a0;
+}
+
+.demo-body .t-yellow {
+  color: #d7ba7d;
+}
+
+.demo-body .t-red {
+  color: #f07178;
+}
+
+.demo-body .t-white {
+  color: #f0f0f0;
+}
+
+.demo-body .t-magenta {
+  color: #c586c0;
+}
+
+.card,
+.error-box {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  transition: border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.card:hover {
+  border-color: var(--line-strong);
+}
+
+/* --------------------------- recent / chips --------------------------- */
+
+.trace-btn,
+.chip {
+  background: var(--panel);
+  border: 1px solid var(--line-strong);
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  padding: 7px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.trace-btn:hover,
+.chip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* =========================================================
+   RESULT VIEWS  ·  restyled to the same clean system
+   ========================================================= */
+
+/* Bordered row list: an enclosed block with the same 24px inset as a
+   bento cell, so lists and grids share one geometry. */
+.row-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--line);
+}
+
+.row-list>li {
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--line);
+}
+
+.row-list>li:last-child {
+  border-bottom: 0;
+}
+
+.row-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-faint);
+}
+
+.row-lead {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+
+.row-when {
+  flex-shrink: 0;
+}
+
+.row-title {
+  margin-top: 6px;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.row-title a:hover {
+  color: var(--accent);
+}
+
+.results {
+  position: relative;
+  z-index: 1;
+}
+
+.status {
+  margin-top: 28px;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+.status::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin-right: 9px;
+  vertical-align: middle;
+  animation: pulse 1.1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.35;
+    transform: scale(0.7);
+  }
+}
+
+.error-box {
+  margin-top: 28px;
+  padding: 18px 20px;
+  border-color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 7%, var(--panel));
+  color: var(--text);
+  font-size: 14px;
+}
+
+.note {
+  font-size: 13px;
+  color: var(--text-faint);
+  margin-bottom: 22px;
+  line-height: 1.6;
+}
+
+section.block {
+  margin-bottom: 56px;
+}
+
+section.block h2 {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--text-faint);
+  margin-bottom: 22px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+section.block h2::before {
+  content: '//';
+  color: var(--accent);
+}
+
+section.block h2::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+/* trail */
+.trail {
+  position: relative;
+  padding-left: 28px;
+}
+
+.trail::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  bottom: 8px;
+  width: 1px;
+  background: var(--line-strong);
+}
+
+.badge {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  background: var(--bg-3);
+  border: 1px solid var(--line);
+  border-radius: 0;
+  padding: 2px 7px;
+}
+
+/* bars */
+.bar-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.bar-label {
+  width: 172px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+
+.bar-track {
+  flex: 1;
+  height: 10px;
+  background: var(--seg-off);
+  border-radius: 0;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 0;
+  animation: barGrow 0.6s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+@keyframes barGrow {
+  from {
+    width: 0 !important;
+  }
+}
+
+.bar-val {
+  width: 36px;
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-faint);
+}
+
+/* timeline */
+ul.timeline {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+ul.timeline li {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+}
+
+ul.timeline li:last-child {
+  border-bottom: none;
+}
+
+ul.timeline .tl-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  margin-bottom: 4px;
+}
+
+ul.timeline .tl-title {
+  color: var(--text);
+}
+
+ul.timeline .tl-title a:hover {
+  color: var(--accent);
+}
+
+/* state badges */
+.state-badge {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border: 1px solid var(--line-strong);
+  border-radius: 0;
+  padding: 2px 7px;
+}
+
+.state-badge.open {
+  color: #1a7f37;
+  border-color: color-mix(in srgb, #1a7f37 40%, transparent);
+  background: color-mix(in srgb, #1a7f37 8%, transparent);
+}
+
+.state-badge.merged {
+  color: #8250df;
+  border-color: color-mix(in srgb, #8250df 40%, transparent);
+  background: color-mix(in srgb, #8250df 10%, transparent);
+}
+
+.state-badge.closed {
+  color: #cf222e;
+  border-color: color-mix(in srgb, #cf222e 40%, transparent);
+  background: color-mix(in srgb, #cf222e 8%, transparent);
+}
+
+[data-theme='dark'] .state-badge.open {
+  color: #3fb950;
+}
+
+[data-theme='dark'] .state-badge.merged {
+  color: #ab7df8;
+}
+
+[data-theme='dark'] .state-badge.closed {
+  color: #f85149;
+}
+
+/* ------------------------------ modal ------------------------------ */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 10, 11, 0.55);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 20px;
+}
+
+.modal {
+  background: var(--panel);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 640px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-lg);
+}
+
+.modal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--line);
+}
+
+.modal-title {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.modal-title a:hover {
+  color: var(--accent);
+}
+
+.modal-sub {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--text-faint);
+  margin-top: 3px;
+}
+
+.modal-close {
+  background: none;
+  border: 1px solid var(--line-strong);
+  color: var(--text-dim);
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.modal-close:hover {
+  color: var(--text);
+  border-color: var(--text-faint);
+}
+
+.modal-tabs {
+  display: flex;
+  gap: 20px;
+  padding: 0 22px;
+  border-bottom: 1px solid var(--line);
+}
+
+.modal-tab {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 13px 2px 11px;
+  font-size: 13px;
+  color: var(--text-faint);
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.modal-tab:hover {
+  color: var(--text-dim);
+}
+
+.modal-tab.active {
+  color: var(--text);
+  border-bottom-color: var(--accent);
+}
+
+.modal-body {
+  padding: 6px 22px 18px;
+  overflow-y: auto;
+}
+
+/* ------------------------- react heatmap lib ------------------------- */
+
+.react-calendar-heatmap .color-empty {
+  fill: var(--heat-empty);
+}
+
+/* ------------------------------ footer ------------------------------ */
+
+/* No top margin: the footer butts straight onto whatever precedes it.
+   A margin here leaves a bare strip between the closing band and the
+   footer that reads as a seam. */
+.site-footer {
+  position: relative;
+  z-index: 1;
+  border-top: 1px solid var(--line);
+  padding-top: 56px;
+  overflow: hidden;
+}
+
+.footer-top {
+  max-width: var(--frame-w);
+  margin: 0 auto;
+  padding: 0 24px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.footer-blurb {
+  max-width: 34ch;
+  color: var(--text-dim);
+  font-size: 13.5px;
+  line-height: 1.6;
+  margin-top: 14px;
+}
+
+/* One row, no headings - three links do not need to be filed into
+   categories. */
+.footer-links {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.footer-links a {
+  font-size: 14px;
+  color: var(--text-dim);
+}
+
+.footer-links a:hover {
+  color: var(--accent);
+}
+
+/* the big flat wordmark (static, line-colored) */
+/* Oversized mark bled off the bottom edge. The artwork is solid ink, so
+   it gets dialled right down to sit at roughly the weight of a hairline
+   - at full strength it would shout louder than the whole footer. */
+.footer-wordmark {
+  max-width: var(--frame-w);
+  margin-inline: auto;
+  padding: 0 24px;
+  margin-bottom: -70px;
+  user-select: none;
+  pointer-events: none;
+  opacity: 0.09;
+}
+
+.footer-wordmark .wordmark {
+  width: 100%;
+  height: auto !important;
+}
+
+.footer-wordmark .wordmark img {
+  width: 100%;
+  height: auto;
+}
+
+[data-theme='dark'] .footer-wordmark {
+  opacity: 0.13;
+}
+
+.footer-legal {
+  max-width: var(--frame-w);
+  margin: 0 auto;
+  padding: 22px 24px 34px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-faint);
+}
+
+.ascii-dissolve {
+  position: relative;
+}
+
+.ascii-dissolve>canvas {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* ------------------------------ motion ------------------------------ */
+
+.fade-in {
+  animation: fadeIn 0.45s ease both;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+/* staggered entrance for modal timeline rows */
+ul.timeline li {
+  animation: rise 0.34s ease backwards;
+}
+
+ul.timeline li:nth-child(2) {
+  animation-delay: 40ms;
+}
+
+ul.timeline li:nth-child(3) {
+  animation-delay: 80ms;
+}
+
+ul.timeline li:nth-child(4) {
+  animation-delay: 120ms;
+}
+
+ul.timeline li:nth-child(5) {
+  animation-delay: 160ms;
+}
+
+ul.timeline li:nth-child(n + 6) {
+  animation-delay: 200ms;
+}
+
+@media (max-width: 768px) {
+  .wrap {
+    padding-top: 108px;
+  }
+
+  .section {
+    padding-block: 60px;
+  }
+
+
+
+
+
+  .bar-row {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .bar-label {
+    width: 100%;
+  }
+
+
+
+  .subject-card .rstats-inline {
+    margin-left: 0;
+    text-align: left;
+  }
+
+
+
+
+}
+
+@media (max-width: 560px) {
+  form.searchForm {
+    flex-direction: column;
+  }
+
+  button.traceBtn {
+    width: 100%;
+    padding: 13px;
+  }
+
+  .footer-top {
+    flex-direction: column;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+
+  .ascii-dissolve>canvas {
+    display: none !important;
+  }
+
+  .footer-wordmark {
+    background-image: none;
+    -webkit-text-fill-color: var(--line);
+    color: var(--line);
+  }
+}
+
+/* =========================================================
+   HOMEPAGE  ·  Soloterm layout (hero band + bordered frame)
+   ========================================================= */
+
+.container-narrow {
+  max-width: 680px;
+  margin: 0 auto;
+  padding-inline: 24px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ---- hero band (full bleed) ---- */
+.hero-band {
+  position: relative;
+  z-index: 1;
+  background: var(--hero-band);
+  color: var(--hero-ink);
+  padding: 96px 0 150px;
+  text-align: center;
+  overflow: hidden;
+}
+
+/* CLI hero: same blue, same materials, but a deeper vertical wash and a
+   crisper ruling so the terminal page reads as a sibling of home rather than
+   a reprint. The hatch runs a touch brighter to match. */
+.hero-band--cli {
+  background:
+    radial-gradient(120% 80% at 50% -10%, rgba(255, 255, 255, 0.10), transparent 60%),
+    linear-gradient(180deg, var(--hero-band) 0%, var(--hero-band-2) 100%);
+}
+
+.hero-band--cli .hero-grid {
+  background-image:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.15) 1px, transparent 1px),
+    linear-gradient(rgba(255, 255, 255, 0.15) 1px, transparent 1px);
+}
+
+.hero-band--cli .hg-hatch {
+  background-image: repeating-linear-gradient(315deg,
+      rgba(255, 255, 255, 0.62) 0 1px,
+      transparent 0 50%);
+}
+
+/* Hero backdrop: an even hairline grid with hatched cells, dot clusters
+   and tick marks placed on it. Built from the page's own materials - the
+   same 1px rules as .frame and the same diagonal stripe as .hatch - so the
+   hero reads as part of the drawing rather than decoration dropped on top.
+   The 124px cell divides the 1240px frame exactly 10 times, and the grid
+   is centred, so the frame's two rules land on grid lines at any width. */
+.hero-grid {
+  --hero-cell: 124px;
+  --hero-dot: 6px;
+  --hero-dot-gap: 16px;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  color: #fff;
+  /* the grid itself is the faintest layer - it should read as ruling, not
+     as a pattern competing with the headline */
+  background-image:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.11) 1px, transparent 1px),
+    linear-gradient(rgba(255, 255, 255, 0.11) 1px, transparent 1px);
+  background-size: var(--hero-cell) var(--hero-cell);
+  background-position: calc(50% + 0.5px) 0;
+}
+
+.hero-grid > span {
+  position: absolute;
+}
+
+/* cells of diagonal stripe, reusing the section-divider hatch */
+.hg-hatch {
+  background-image: repeating-linear-gradient(315deg,
+      rgba(255, 255, 255, 0.5) 0 1px,
+      transparent 0 50%);
+  background-size: 10px 10px;
+}
+
+/* 3x3 block of squares. Columns come from the background, rows from a
+   mask; where the two overlap you get squares, which a radial-gradient
+   dot grid cannot give you. */
+.hg-dots {
+  width: calc(var(--hero-dot) * 3 + var(--hero-dot-gap) * 2);
+  height: calc(var(--hero-dot) * 3 + var(--hero-dot-gap) * 2);
+  margin: calc(var(--hero-cell) / 2 - (var(--hero-dot) * 3 + var(--hero-dot-gap) * 2) / 2);
+  background-image: repeating-linear-gradient(90deg,
+      rgba(255, 255, 255, 0.34) 0 var(--hero-dot),
+      transparent var(--hero-dot) calc(var(--hero-dot) + var(--hero-dot-gap)));
+  -webkit-mask-image: repeating-linear-gradient(180deg,
+      #000 0 var(--hero-dot),
+      transparent var(--hero-dot) calc(var(--hero-dot) + var(--hero-dot-gap)));
+  mask-image: repeating-linear-gradient(180deg,
+      #000 0 var(--hero-dot),
+      transparent var(--hero-dot) calc(var(--hero-dot) + var(--hero-dot-gap)));
+}
+
+/* single square, centred in its cell */
+.hg-mark {
+  width: var(--hero-dot);
+  height: var(--hero-dot);
+  margin: calc(var(--hero-cell) / 2 - var(--hero-dot) / 2);
+  background: rgba(255, 255, 255, 0.34);
+}
+
+/* + tick centred on a grid intersection */
+.hg-cross {
+  width: 9px;
+  height: 9px;
+  margin: -4px 0 0 -4px;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.34) 0 0),
+    linear-gradient(rgba(255, 255, 255, 0.34) 0 0);
+  background-size: 100% 1px, 1px 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* The page's two frame rules carried through the blue bands, on exactly
+   the same 1240px column every section uses. Without these the bands are
+   detached and the rules only exist between them; with them the line runs
+   unbroken from the nav all the way to the footer. */
+.hero-band::after,
+.cta-band::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  margin-inline: auto;
+  max-width: var(--frame-w);
+  border-inline: 1px solid rgba(255, 255, 255, 0.3);
+  pointer-events: none;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  padding: 4px 12px;
+  border-radius: 0;
+  margin-bottom: 26px;
+}
+
+.hero-band h1 {
+  color: #fff;
+  font-size: clamp(38px, 6vw, 60px);
+  line-height: 1.1;
+  letter-spacing: normal;
+  font-weight: 500;
+  max-width: 17ch;
+  margin: 0 auto;
+}
+
+.hero-band h1 .hl {
+  background: #fff;
+  color: var(--hero-band);
+  border-radius: 0;
+  padding: 0 0.14em;
+  margin: 0 0.02em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+.hero-sub {
+  color: var(--hero-ink-dim);
+  font-size: 16px;
+  line-height: 1.5;
+  max-width: 56ch;
+  margin: 22px auto 32px;
+}
+
+.hero-band form.searchForm {
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.hero-band .search-field input[type='text'] {
+  background: #fff;
+  border-color: transparent;
+  color: #111;
+  box-shadow: none;
+}
+
+.hero-band .search-field::before {
+  color: var(--hero-band);
+}
+
+.hero-band button.traceBtn {
+  background: #fff;
+  color: var(--hero-band);
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.hero-band button.traceBtn:hover {
+  background: #eef2ff;
+}
+
+.hero-note {
+  color: var(--hero-ink-dim);
+  font-size: 13px;
+  margin-top: 16px;
+}
+
+.hero-note a {
+  color: #fff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.hero-note a:hover {
+  opacity: 0.85;
+}
+
+/* install command in the CLI hero - a mono line with a copy button, sitting
+   on the same light card treatment as the search box it replaces */
+.install-cmd {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  max-width: 560px;
+  margin: 4px auto 0;
+}
+
+.install-cmd code {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  color: #1a1a1a;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  padding: 13px 16px;
+  border: 1px solid transparent;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.install-cmd code .tok {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.install-cmd button {
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  padding: 0 16px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.install-cmd button:hover {
+  background: rgba(255, 255, 255, 0.24);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* accent-coloured terminal text, for the wordmark and palette caret */
+.demo-body .t-accent {
+  color: #6b9dff;
+}
+
+/* ---- browser-style app window: the homepage web-app preview ---- */
+.app-window {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 12px 32px rgba(0, 0, 0, 0.08);
+}
+
+.app-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding-inline: 14px;
+  background: var(--bg-2);
+  border-bottom: 1px solid var(--line);
+}
+
+.app-url {
+  position: absolute;
+  inset-inline: 64px;
+  margin-inline: auto;
+  max-width: 280px;
+  text-align: center;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--text-faint);
+  padding: 3px 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* explicit colour: the hero band forces white on its descendants, and this
+   window sits inside it - without resetting, the dark text inherits white
+   and vanishes against the light window */
+.app-body {
+  padding: 22px;
+  color: var(--text);
+}
+
+/* identity row */
+.wp-id {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding-bottom: 18px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.wp-avatar {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 16px;
+}
+
+.wp-name {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.wp-sub {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-faint);
+  margin-top: 2px;
+}
+
+/* stat cells, the hairline bento the result pages use */
+.wp-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border: 1px solid var(--line);
+}
+
+.wp-stats.four {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.wp-stat {
+  padding: 16px 14px;
+  border-right: 1px solid var(--line);
+}
+
+.wp-stat:last-child {
+  border-right: 0;
+}
+
+.wp-val {
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--text);
+}
+
+.wp-val.green { color: #16a34a; }
+.wp-val.magenta { color: #9333ea; }
+.wp-val.red { color: #dc2626; }
+
+.wp-lbl {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-faint);
+  margin-top: 8px;
+}
+
+/* rows: repo lists and PR lists */
+.wp-rows {
+  border: 1px solid var(--line);
+  border-top: 0;
+}
+
+.wp-stats + .wp-rows {
+  border-top: 0;
+}
+
+.wp-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  border-top: 1px solid var(--line);
+  font-size: 13px;
+}
+
+.wp-tag {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-dim);
+  border: 1px solid var(--line-strong);
+  padding: 1px 6px;
+}
+
+.wp-tag.green { color: #16a34a; border-color: color-mix(in srgb, #16a34a 40%, transparent); }
+.wp-tag.magenta { color: #9333ea; border-color: color-mix(in srgb, #9333ea 40%, transparent); }
+.wp-tag.red { color: #dc2626; border-color: color-mix(in srgb, #dc2626 40%, transparent); }
+
+.wp-main {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* Flex items default to min-width:auto, which refuses to shrink below the
+     text's full width. With nowrap that pins the whole window to the longest
+     title and overflows the frame on narrow screens. Let it shrink so the
+     ellipsis does its job instead. */
+  min-width: 0;
+}
+
+.wp-trail {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--text-faint);
+}
+
+/* inline mono inside body copy */
+.inline-code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  background: var(--bg-3);
+  border: 1px solid var(--line);
+  padding: 1px 6px;
+}
+
+/* flag reference list - a bordered two-column block, same hairline system
+   as the result rows */
+/* flags as bento cells, matching the perks/mini grids elsewhere */
+.flag-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.flag-name {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--accent);
+  white-space: nowrap;
+  overflow-x: auto;
+}
+
+.flag-desc {
+  font-size: 13.5px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+/* the install line in the closing CLI CTA */
+.cta-actions-cli {
+  flex-wrap: wrap;
+}
+
+.cta-install {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.18);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  padding: 11px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  overflow-x: auto;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.cta-install .tok {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* homepage CLI signpost - centred, no window */
+.cli-callout {
+  text-align: center;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.cli-callout .sec-eyebrow {
+  justify-content: center;
+}
+
+.cli-callout h2 {
+  font-size: clamp(26px, 3.4vw, 34px);
+  margin-top: 12px;
+}
+
+.cli-callout > p {
+  color: var(--text-dim);
+  font-size: 16px;
+  line-height: 1.6;
+  margin: 14px auto 26px;
+  max-width: 52ch;
+}
+
+.cli-callout-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.cli-callout-install {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-3);
+  border: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-dim);
+  padding: 11px 14px;
+  overflow-x: auto;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.cli-callout-install .tok {
+  color: var(--accent);
+}
+
+/* 404 - centred inside the frame, with nav clearance */
+.notfound {
+  max-width: 620px;
+  margin: 0 auto;
+  padding: 120px 0 130px;
+  text-align: center;
+}
+
+.notfound .sec-eyebrow {
+  justify-content: center;
+}
+
+.notfound h1 {
+  font-size: clamp(34px, 5vw, 52px);
+  margin-top: 14px;
+}
+
+.notfound > p {
+  color: var(--text-dim);
+  font-size: 16px;
+  line-height: 1.6;
+  margin: 16px auto 28px;
+  max-width: 46ch;
+}
+
+.notfound-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+
+/* token box + recent searches inside the blue hero */
+.hero-band .token-landing-section {
+  max-width: 520px;
+  margin: 14px auto 0;
+  text-align: center;
+}
+
+.hero-band .tokenToggle {
+  color: var(--hero-ink-dim);
+}
+
+.hero-band .tokenToggle:hover {
+  color: #fff;
+}
+
+.hero-band .tokenBox {
+  max-width: 520px;
+  margin: 12px auto 0;
+  text-align: left;
+}
+
+.hero-band .tokenBox input[type='text'] {
+  background: #fff;
+  border-color: transparent;
+  color: #111;
+}
+
+.hero-band .eyebrow {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.hero-band .trace-btn {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.28);
+  color: #fff;
+}
+
+.hero-band .trace-btn:hover {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.5);
+  color: #fff;
+}
+
+.hero-recent {
+  max-width: 520px;
+  margin: 20px auto 0;
+}
+
+/* product window dipping from blue into the section below (square) */
+.hero-window-wrap {
+  max-width: 820px;
+  margin: 56px auto -110px;
+  padding-inline: 24px;
+  position: relative;
+  z-index: 3;
+}
+
+/* The CLI hero screenshot is a full report and would run ~800px tall at this
+   width. Cap the terminal body and let the window crop it, so the hero shows
+   the top of a trace (identity, PRs, activity, first of the trail) and fades
+   out - a teaser, not the whole scroll. Scoped to the hero so the shorter
+   launch shot elsewhere is untouched. */
+.hero-window-wrap .demo-shot {
+  position: relative;
+  max-height: 430px;
+  overflow: hidden;
+}
+
+.hero-window-wrap .demo-shot::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 96px;
+  background: linear-gradient(to bottom, transparent, #1e1e1e);
+  pointer-events: none;
+}
+
+/* ---- generic soloterm section ---- */
+/* The vertical padding lives on the .frame, not the <section>. On the
+   section it sits outside the bordered column, so the two vertical rules
+   stop at the end of each section's content and restart 80px later -
+   the whole page reads as disconnected line fragments. Padding the frame
+   instead makes every section's rules butt directly against the next
+   frame or hatch, so the line runs unbroken from hero to footer. */
+.sec {
+  position: relative;
+  z-index: 1;
+}
+
+.sec>.frame {
+  padding-block: 80px;
+}
+
+.sec.gray {
+  background: var(--bg-2);
+}
+
+.sec.pad-top-lg>.frame {
+  padding-top: 130px;
+}
+
+/* band that supplies its own padding (the chip strip) */
+.sec.flush>.frame {
+  padding-block: 0;
+}
+
+/* centered section header, narrow */
+.sec-head {
+  text-align: center;
+  max-width: 62ch;
+  margin: 0 auto 44px;
+}
+
+.sec-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--line);
+  padding: 2px;
+  margin-bottom: 18px;
+}
+
+.sec-eyebrow .ic {
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 11px;
+  border-radius: 0;
+}
+
+.sec-eyebrow .lbl,
+.sec-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-faint);
+}
+
+.sec-eyebrow .lbl {
+  padding-right: 8px;
+}
+
+.sec-head h2 {
+  font-size: 48px;
+  line-height: 1.1;
+  letter-spacing: normal;
+}
+
+.sec-head p {
+  color: var(--text-dim);
+  font-size: 16px;
+  line-height: 1.5;
+  margin-top: 14px;
+}
+
+/* the illustration tile inside a problem cell */
+.tri-illus {
+  height: 120px;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: var(--bg-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+  font-size: 30px;
+}
+
+.tri-card h3 {
+  font-size: 20px;
+  margin-bottom: 6px;
+}
+
+.tri-card p {
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ---- split: text + window ---- */
+.split {
+  display: grid;
+  /* minmax(0, 1fr), not 1fr: a bare 1fr track keeps its automatic min-content
+     minimum, so the window column refuses to shrink below the preview's
+     natural width and overflows the frame on narrow screens. The 0 minimum
+     lets the columns shrink and the window scale down instead. */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 48px;
+  align-items: center;
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.split-text h2 {
+  font-size: 48px;
+  letter-spacing: normal;
+  line-height: 1.1;
+  margin-bottom: 16px;
+}
+
+.split-text>p {
+  color: var(--text-dim);
+  font-size: 16px;
+  line-height: 1.5;
+  margin-bottom: 22px;
+}
+
+.checklist {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+.checklist li {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  font-size: 15px;
+  color: var(--text);
+}
+
+.check-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 0;
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+
+.check-dot.green {
+  background: #16a34a;
+}
+
+.check-dot.red {
+  background: #dc2626;
+}
+
+.check-dot.gray {
+  background: var(--text-faint);
+}
+
+.check-dot.accent {
+  background: var(--accent);
+}
+
+/* ---- chip strip (bordered band, label + targets) ---- */
+.chip-strip {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 20px 24px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.chip-strip .strip-label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+
+.logos-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.logo-chip {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-dim);
+  border: 1px solid var(--line);
+  border-radius: 0;
+  padding: 6px 12px;
+  background: var(--bg);
+}
+
+/* ---- feature cell contents ---- */
+.feat2 .ic {
+  width: 32px;
+  height: 32px;
+  border-radius: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  margin-bottom: 16px;
+}
+
+.feat2 h3 {
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+
+.feat2 p {
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.5;
+  margin: 0 0 14px;
+}
+
+.code-chip {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-dim);
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 0;
+  padding: 9px 11px;
+  display: block;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.code-chip .tok {
+  color: var(--accent);
+}
+
+/* a web route chip - the homepage version of the CLI's code-chip, showing
+   the linkable URL a trace lives at rather than a terminal command */
+.route-chip {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-faint);
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  padding: 9px 11px;
+  overflow-x: auto;
+  white-space: nowrap;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.route-chip:hover {
+  border-color: var(--line-strong);
+  color: var(--text-dim);
+}
+
+.route-chip .tok {
+  color: var(--accent);
+}
+
+.route-chip .route-path {
+  color: var(--text);
+}
+
+/* ---- mini cell contents ---- */
+.mini .ic {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--line-strong);
+  border-radius: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  font-size: 14px;
+}
+
+.mini h4 {
+  font-size: 15px;
+  margin: 13px 0 6px;
+  font-weight: 500;
+}
+
+.mini p {
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ---- FAQ 2-col bordered grid ---- */
+.faq-cell summary {
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 17px;
+  color: var(--text);
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.faq-cell summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq-cell summary::after {
+  content: '+';
+  font-family: var(--font-mono);
+  font-size: 18px;
+  color: var(--text-faint);
+  transition: transform 0.2s ease, color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.faq-cell[open] summary::after {
+  transform: rotate(45deg);
+  color: var(--accent);
+}
+
+.faq-cell p {
+  margin: 14px 0 0;
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+
+/* ---- closing CTA band (full-bleed blue, dotted texture) ---- */
+.cta-band {
+  position: relative;
+  background: var(--hero-band);
+  color: #fff;
+  text-align: center;
+  padding: 88px 24px;
+  overflow: hidden;
+}
+
+.cta-band::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.18) 1px, transparent 1px);
+  background-size: 22px 22px;
+  -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, #000 30%, transparent 85%);
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, #000 30%, transparent 85%);
+}
+
+.cta-band h2 {
+  position: relative;
+  color: #fff;
+  font-size: clamp(32px, 5vw, 48px);
+  line-height: 1.1;
+  font-weight: 500;
+  max-width: 20ch;
+  margin: 0 auto 12px;
+}
+
+.cta-band h2 .dim {
+  color: var(--hero-ink-dim);
+}
+
+.cta-band p {
+  position: relative;
+  color: var(--hero-ink-dim);
+  font-size: 16px;
+  margin: 0 auto 28px;
+  max-width: 52ch;
+}
+
+.cta-actions {
+  position: relative;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.cta-band .btn-primary {
+  background: #fff;
+  color: var(--hero-band);
+  border-color: #fff;
+}
+
+.cta-band .btn-primary:hover {
+  background: #eef2ff;
+}
+
+.cta-band .btn-ghost {
+  background: transparent;
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.cta-band .btn-ghost:hover {
+  border-color: #fff;
+}
+
+/* ---- homepage responsive ---- */
+@media (max-width: 1100px) {
+  .cell-grid.cols-5 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .cell-grid.cols-5>*:nth-child(5n) {
+    border-right: 1px solid var(--line);
+  }
+
+  .cell-grid.cols-5>*:nth-child(3n) {
+    border-right: 0;
+  }
+}
+
+@media (max-width: 900px) {
+  .cell-grid.cols-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cell-grid.cols-4>*:nth-child(4n) {
+    border-right: 1px solid var(--line);
+  }
+
+  .cell-grid.cols-4>*:nth-child(2n) {
+    border-right: 0;
+  }
+
+  .cell-grid.cols-5 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cell-grid.cols-5>*:nth-child(3n) {
+    border-right: 1px solid var(--line);
+  }
+
+  .cell-grid.cols-5>*:nth-child(2n) {
+    border-right: 0;
+  }
+}
+
+@media (max-width: 820px) {
+  .split {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 22px;
+  }
+
+  .cell-grid.cols-3,
+  .cell-grid.cols-2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cell-grid.cols-3>*,
+  .cell-grid.cols-2>* {
+    border-right: 0;
+  }
+
+  .sec {
+    padding-block: 56px;
+  }
+
+  .sec-head h2,
+  .split-text h2 {
+    font-size: 36px;
+  }
+
+  .hero-band {
+    padding: 72px 0 130px;
+  }
+}
+
+@media (max-width: 480px) {
+  .cell-grid.cols-4 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cell-grid.cols-4>* {
+    border-right: 0;
+  }
+}
